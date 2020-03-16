@@ -56,11 +56,9 @@ export default {
   },
   methods: {
     treeChart() {
-      console.log('this.packData', this.packData);
       // treeChart.padding(10);
       const output = this.tree(this.packData).descendants();
-      console.log('output', output);
-      return output.map(d => {
+      return output.map(function (d, i) {
         return {
           transformCoords: `translate(${d.x}, ${d.y})`,
           nodeId: `node-${d.x}-${d.y}`,
@@ -78,11 +76,14 @@ export default {
     },
     links() {
       const links = this.tree(this.packData).links();
+      console.log('links', links);
+      const link = d3.linkVertical()
+        .x(function(d) { return d.x })
+        .y(function(d) { return d.y; });
+
       return links.map((d, i) => {
         return {
-          d: d3.linkVertical()
-          .x(function(d) { return d.x })
-          .y(function(d) { return d.y; }),
+          d: link(d),
           linkId: i,
         }
       });
@@ -93,10 +94,10 @@ export default {
       return d3.tree()
         .size([500, 500]);
     },
-    linkGenerator(linkData) {
+    linkGenerator() {
       return d3.linkVertical()
-        .x(function(linkData) { return linkData.x })
-        .y(function(linkData) { return linkData.y; });
+        .x(function(d) { return d.x })
+        .y(function(d) { return d.y; });
     },
     packData() {
       // const nestedTweets = d3
@@ -114,7 +115,7 @@ export default {
     output() {
       return  {
         nodes: this.treeChart(),
-        // links: this.links(),
+        links: this.links(),
       }
     }
   }
@@ -122,4 +123,10 @@ export default {
 </script>
 
 <style>
+.link {
+	fill: none;
+	stroke: #555;
+	stroke-opacity: 0.4;
+	stroke-width: 1.5px;
+}
 </style>
