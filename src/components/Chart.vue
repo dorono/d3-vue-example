@@ -7,16 +7,35 @@
       :width='width'
     >
       <g transform="translate(50,50)">
-        <circle
-          v-for="c in output"
-          :key="c.id"
-          :r="c.r"
-          :cx="c.x"
-          :cy="c.y"
-          :fill="c.fill"
-          :stroke="c.stroke"
+        <path
+          v-for="p in output.links"
+          class="link"
+          :key="p.linkId"
+          :d="p.d"
+        ></path>
+
+        <g
+          v-for="c in output.nodes"
+          :transform="c.transformCoords"
+          :key="c.nodeId"
         >
-        </circle>
+          <circle
+            :stroke="c.stroke"
+            :fill="c.circleFill"
+            :r="c.r"
+          >
+          </circle>
+
+          <text
+            :fill="c.textFill"
+            :x="c.textX"
+            :y="c.textY"
+            :text-anchor="c.textAnchor"
+            :font-size="c.textFontSize"
+          >
+            {{c.text}}
+          </text>
+        </g>
       </g>
     </svg>
   </div>
@@ -26,7 +45,7 @@
 import * as d3 from "d3";
 
 export default {
-  name: "PackChart",
+  name: "treeChart",
   props: ["tweetData"],
   data() {
     return {
@@ -35,46 +54,68 @@ export default {
       width: 600
     };
   },
-  created() {
-    this.colourScale = d3
-      .scaleOrdinal()
-      .range(["#5EAFC6", "#FE9922", "#93c464", "#75739F"]);
-  },
   methods: {
-    packChart() {
-      const packChart = d3.pack();
-      packChart.size([500, 500]);
-      packChart.padding(10);
-      const output = packChart(this.packData).descendants();
-      return output.map((d, i) => {
-        const fill = this.colourScale(d.depth);
+    treeChart() {
+      console.log('this.packData', this.packData);
+      // treeChart.padding(10);
+      const output = this.tree(this.packData).descendants();
+      console.log('output', output);
+      return output.map(d => {
         return {
-          id: i + 1,
-          r: d.r,
-          x: d.x,
-          y: d.y,
-          fill,
-          stroke: "grey"
+          transformCoords: `translate(${d.x}, ${d.y})`,
+          nodeId: `node-${d.x}-${d.y}`,
+          r: 50,
+          circleFill: 'white',
+          stroke: 'black',
+          text: d.data.name,
+          textFill: 'black',
+          textX: 0,
+          textY: 0,
+          textAnchor: 'start',
+          textFontSize: '15px',
         };
       });
-    }
+    },
+    links() {
+      const links = this.tree(this.packData).links();
+      return links.map((d, i) => {
+        return {
+          d: d3.linkVertical()
+          .x(function(d) { return d.x })
+          .y(function(d) { return d.y; }),
+          linkId: i,
+        }
+      });
+    },
   },
   computed: {
+    tree() {
+      return d3.tree()
+        .size([500, 500]);
+    },
+    linkGenerator(linkData) {
+      return d3.linkVertical()
+        .x(function(linkData) { return linkData.x })
+        .y(function(linkData) { return linkData.y; });
+    },
     packData() {
-      const nestedTweets = d3
-        .nest()
-        .key(d => d.user)
-        .entries(this.tweetData);
+      // const nestedTweets = d3
+      //   .nest()
+      //   .key(d => d.user)
+      //   .entries(this.tweetData);
 
-      const packableTweets = { id: "All Tweets", values: nestedTweets };
+      // const packableTweets = { id: "All Tweets", values: nestedTweets };
       return d3
-        .hierarchy(packableTweets, d => d.values)
-        .sum(d =>
-          d.retweets ? d.retweets.length + d.favorites.length + 1 : 1
-        );
+        .hierarchy(this.tweetData)
+        // .sum(d =>
+        //   d.retweets ? d.retweets.length + d.favorites.length + 1 : 1
+        // );
     },
     output() {
-      return this.packChart();
+      return  {
+        nodes: this.treeChart(),
+        // links: this.links(),
+      }
     }
   }
 };

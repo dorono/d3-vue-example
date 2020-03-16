@@ -28,7 +28,7 @@ export default {
   },
   methods: {
     async fetchData() {
-      let data = await d3.json("./tweets.json");
+      let data = await d3.json("./testData.json");
       this.loadData = data;
     }
   }
