@@ -1,9 +1,7 @@
 {
   "name": "Eve",
   "children": [
-    {
-      "name": "Cain"
-    },
+
     {
       "name": "Seth",
       "children": [
@@ -22,7 +20,15 @@
       "name": "Awan",
       "children": [
         {
-          "name": "Enoch"
+          "name": "Enoch",
+          "children": [
+            {
+              "name": "Fredo"
+            },
+            {
+              "name": "Grizelda"
+            }
+          ]
         }
       ]
     },

@@ -1,12 +1,11 @@
 <template>
   <div>
-    <h1>Circle Pack in D3</h1>
-    <h2>{{ msg }}</h2>
+    <h1>Circle Diagram in Vue + D3</h1>
     <svg
-      :height='height'
-      :width='width'
+      :height="dynamicHeight"
+      :width="width + margin['left'] + margin['right']"
     >
-      <g transform="translate(50,50)">
+      <g :transform="diagramPosition">
         <path
           v-for="p in output.links"
           class="link"
@@ -46,19 +45,23 @@ import * as d3 from "d3";
 
 export default {
   name: "treeChart",
-  props: ["tweetData"],
+  props: ["mockApiData"],
   data() {
     return {
-      msg: "👋 from the Chart Component",
-      height: 600,
-      width: 600
+      height: 550,
+      width: 600,
+      margin: {
+        top: 75,
+        right: 50,
+        bottom: 50,
+        left: 50,
+      },
     };
   },
   methods: {
     treeChart() {
-      // treeChart.padding(10);
-      const output = this.tree(this.packData).descendants();
-      return output.map(function (d, i) {
+      const output = this.tree(this.treeData).descendants();
+      return output.map(d => {
         return {
           transformCoords: `translate(${d.x}, ${d.y})`,
           nodeId: `node-${d.x}-${d.y}`,
@@ -75,21 +78,28 @@ export default {
       });
     },
     links() {
-      const links = this.tree(this.packData).links();
-      console.log('links', links);
-      const link = d3.linkVertical()
-        .x(function(d) { return d.x })
-        .y(function(d) { return d.y; });
+      const links = this.tree(this.treeData).links();
 
-      return links.map((d, i) => {
+      return links.map(d => {
         return {
-          d: link(d),
-          linkId: i,
+          d: this.linkGenerator(d),
+          linkId: `link-${d.source.x}-${d.target.x}`,
         }
       });
     },
   },
   computed: {
+    diagramPosition() {
+      console.log('this.width',this.width);
+      return `translate(${this.margin['left']},${this.margin['top']})`
+    },
+    dynamicHeight() {
+      const treeHeight = this.tree(this.treeData).height;
+      const treeExtension = treeHeight < 3
+        ? this.height
+        : this.height + ((treeHeight - 2) * 75);
+      return treeExtension + this.margin['top'] + this.margin['bottom'];
+    },
     tree() {
       return d3.tree()
         .size([500, 500]);
@@ -99,18 +109,12 @@ export default {
         .x(function(d) { return d.x })
         .y(function(d) { return d.y; });
     },
-    packData() {
-      // const nestedTweets = d3
-      //   .nest()
-      //   .key(d => d.user)
-      //   .entries(this.tweetData);
-
-      // const packableTweets = { id: "All Tweets", values: nestedTweets };
+    treeData() {
       return d3
-        .hierarchy(this.tweetData)
-        // .sum(d =>
-        //   d.retweets ? d.retweets.length + d.favorites.length + 1 : 1
-        // );
+        .hierarchy(this.mockApiData)
+    },
+    setMargins() {
+      return 600;
     },
     output() {
       return  {
@@ -123,6 +127,11 @@ export default {
 </script>
 
 <style>
+
+svg {
+  border: 1px solid red;
+}
+
 .link {
 	fill: none;
 	stroke: #555;
