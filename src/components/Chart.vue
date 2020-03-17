@@ -72,7 +72,7 @@ export default {
           textFill: 'black',
           textX: 0,
           textY: 0,
-          textAnchor: 'start',
+          textAnchor: 'middle',
           textFontSize: '15px',
         };
       });
@@ -90,7 +90,6 @@ export default {
   },
   computed: {
     diagramPosition() {
-      console.log('this.width',this.width);
       return `translate(${this.margin['left']},${this.margin['top']})`
     },
     dynamicHeight() {
@@ -102,7 +101,10 @@ export default {
     },
     tree() {
       return d3.tree()
-        .size([500, 500]);
+        .size([
+          this.width - this.margin['left'] - this.margin['right'],
+          this.height - this.margin['top'] - this.margin['bottom']
+        ]);
     },
     linkGenerator() {
       return d3.linkVertical()
