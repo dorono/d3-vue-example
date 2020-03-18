@@ -1,34 +1,13 @@
 <template>
   <div id="app">
-    <CircleDiagram :mockApiData=loadData />
+    <router-view></router-view>
   </div>
 </template>
 
 <script>
-import * as d3 from "d3";
-
-import CircleDiagram from "./components/Chart.vue";
-
-export default {
-  name: "app",
-  components: {
-    CircleDiagram
-  },
-  data: function() {
-    return {
-      loadData: []
-    };
-  },
-  mounted() {
-    this.fetchData();
-  },
-  methods: {
-    async fetchData() {
-      let data = await d3.json("./testData.json");
-      this.loadData = data;
-    }
-  }
-};
+  export default {
+    name: 'app',
+  };
 </script>
 
 <style>
