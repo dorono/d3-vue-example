@@ -1,5 +1,9 @@
 <template>
   <div id="app">
+    <div>
+      <router-link :to="{name: 'home'}">Home</router-link> |
+      <router-link :to="{name: 'counting'}">Counting Page</router-link>
+    </div>
     <router-view></router-view>
   </div>
 </template>

@@ -131,7 +131,7 @@ export default {
 <style>
 
 svg {
-  border: 1px solid red;
+  border: 2px dashed black;
 }
 
 .link {

@@ -1,12 +1,14 @@
 <template>
   <div id="home">
-    <div>{{count}}</div>
+    <div>Number of {{product}}s: {{count}}</div>
     <CircleDiagram :mockApiData=loadData />
   </div>
 </template>
 
 <script>
 import * as d3 from "d3";
+import { mapState } from 'vuex'
+
 import CircleDiagram from "../components/Chart.vue";
 
 export default {
@@ -19,11 +21,10 @@ export default {
       loadData: []
     };
   },
-  computed: {
-    count: function () {
-      return this.$store.state.count;
-    },
-  },
+  computed: mapState([
+    'count',
+    'product',
+  ]),
   mounted() {
     this.fetchData();
   },
